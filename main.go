@@ -9,7 +9,8 @@ import (
 
 func main() {
 
-	urlFilters := regexp.MustCompile("dontstarve.fandom.com/wiki/[^(Special:Log)]")
+	urlFilters := regexp.MustCompile(`dontstarve.fandom.com/wiki/[^(Special:Log)|
+	^(Template)|^(Help)|^(User)]`)
 
 	c := colly.NewCollector(
 		colly.AllowedDomains("dontstarve.fandom.com", "www.dontstarve.fandom.com"),
@@ -24,6 +25,6 @@ func main() {
 		fmt.Println("Visiting", r.URL)
 	})
 
-	c.Visit("https://dontstarve.fandom.com/wiki/Category:Don't_Starve_Together")
+	c.Visit("https://dontstarve.fandom.com/wiki/Magma")
 
 }
