@@ -35,7 +35,10 @@ func main() {
 		colly.AllowedDomains("dontstarve.fandom.com", "www.dontstarve.fandom.com"),
 		colly.URLFilters(urlFilters),
 	)
-	
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "dontstarve.fandom.com*",
+		Delay:      1 * time.Second,
+	})
 
 	c.OnHTML("center", func(e *colly.HTMLElement) {
 
