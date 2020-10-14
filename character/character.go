@@ -2,6 +2,7 @@ package character
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -37,7 +38,10 @@ func GetCharacters(c *colly.Collector) []string {
 
 	})
 
-	c.Visit("https://dontstarve.fandom.com/wiki/Characters")
+	err := c.Visit("https://dontstarve.fandom.com/wiki/Characters")
+	if err != nil {
+		log.Fatal(err)
+	}
 	return charactersName
 }
 
@@ -51,6 +55,9 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 		character.Nickname = nickname
 	})
 
-	c.Visit(fmt.Sprintf("https://dontstarve.fandom.com/wiki/%s", characterName))
+	err := c.Visit(fmt.Sprintf("https://dontstarve.fandom.com/wiki/%s", characterName))
+	if err != nil {
+		log.Fatal(err)
+	}
 	return character
 }

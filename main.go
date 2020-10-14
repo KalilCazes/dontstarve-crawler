@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -20,11 +21,13 @@ func NewCollector() *colly.Collector {
 		colly.AllowedDomains("dontstarve.fandom.com", "www.dontstarve.fandom.com"),
 		colly.URLFilters(urlFilters),
 	)
-	c.Limit(&colly.LimitRule{
+	err := c.Limit(&colly.LimitRule{
 		DomainGlob: "dontstarve.fandom.com*",
 		Delay:      1 * time.Second,
 	})
-
+	if err != nil {
+		log.Fatal(err)
+	}
 	return c
 }
 func main() {
