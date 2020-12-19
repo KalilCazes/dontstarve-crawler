@@ -12,7 +12,7 @@ import (
 
 func createCollector() *colly.Collector {
 
-	fake := httptest.NewServer(http.FileServer(http.Dir("maxwell_test")))
+	fake := httptest.NewServer(http.FileServer(http.Dir("test")))
 
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
