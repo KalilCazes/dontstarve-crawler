@@ -41,9 +41,8 @@ func GetCharacters(c *colly.Collector) []string {
 	})
 
 	err := c.Visit("https://dontstarve.fandom.com/wiki/Characters")
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError(err)
+
 	return charactersName
 }
 
@@ -72,9 +71,8 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
 		s, err := goquerySelection.Find("[data-source=\"perk dst\"] .pi-data-value").Html()
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
+
 		perks := strings.Split(s, "<br/>")
 		character.Perks = perks
 	})
@@ -83,9 +81,8 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 		var err error
 		pi := e.ChildAttr("section:nth-child(1) > figure:nth-child(1) > a:nth-child(1) > img", "src")
 		pi, err = trimImageURL(pi)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
+
 		character.ProfileImage = pi
 	})
 
@@ -93,9 +90,8 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 		goquerySelection := e.DOM
 		ht := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(1)").Text()
 		health, err := strconv.Atoi(ht)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
+
 		character.Health = health
 	})
 
@@ -103,9 +99,8 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 		goquerySelection := e.DOM
 		hg := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(2)").Text()
 		hunger, err := strconv.Atoi(hg)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
+
 		character.Hunger = hunger
 	})
 
@@ -113,16 +108,13 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 		goquerySelection := e.DOM
 		s := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(3)").Text()
 		sanity, err := strconv.Atoi(s)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkError(err)
+
 		character.Sanity = sanity
 	})
 
 	err := c.Visit(fmt.Sprintf("https://dontstarve.fandom.com/wiki/%s", characterName))
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError(err)
 
 	return character
 }
@@ -133,4 +125,10 @@ func trimImageURL(url string) (string, error) {
 		return "", fmt.Errorf("Invalid Image URL: %s", url)
 	}
 	return s[0], nil
+}
+
+func checkError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
