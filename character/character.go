@@ -3,7 +3,6 @@ package character
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -17,9 +16,9 @@ type Character struct {
 	Bio          string
 	Perks        []string
 	ProfileImage string
-	Health       int
-	Hunger       int
-	Sanity       int
+	Health       string
+	Hunger       string
+	Sanity       string
 	FavoriteFood map[string]string
 }
 
@@ -46,19 +45,20 @@ func GetCharacters(c *colly.Collector) []string {
 	return charactersName
 }
 
-//GetInfo get information about specific character
-func GetInfo(c *colly.Collector, characterName string) Character {
+//GetCharacterInfo get information about specific character
+func GetCharacterInfo(c *colly.Collector, characterName string) Character {
 
 	character := Character{}
-	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+	c.OnHTML("div.pi-section-content", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
-		nickname := goquerySelection.Find("[data-source=\"nick dst\"] .pi-data-value").Text()
+		nickname := goquerySelection.Find("section.pi-item:nth-child(1) > div:nth-child(2) > div:nth-child(2)").Text()
 		character.Nickname = nickname
 	})
 
 	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
 		motto := goquerySelection.Find("[data-source=\"motto dst\"] .pi-data-value").Text()
+
 		character.Motto = motto
 	})
 
@@ -88,29 +88,33 @@ func GetInfo(c *colly.Collector, characterName string) Character {
 
 	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
-		ht := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(1)").Text()
-		health, err := strconv.Atoi(ht)
-		checkError(err)
+		health := goquerySelection.Find("section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(1)").Text()
 
 		character.Health = health
 	})
 
 	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
-		hg := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(2)").Text()
-		hunger, err := strconv.Atoi(hg)
-		checkError(err)
+		hunger := goquerySelection.Find("section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(2)").Text()
 
 		character.Hunger = hunger
 	})
 
 	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
-		s := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(3)").Text()
-		sanity, err := strconv.Atoi(s)
-		checkError(err)
+		sanity := goquerySelection.Find("section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(3)").Text()
 
 		character.Sanity = sanity
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		food := goquerySelection.Find("section:nth-child(3) > div:nth-child(4) > div:nth-child(2) > a")
+		l, _ := food.Attr("href")
+		tittle, _ := food.Attr("title")
+		link := "https://dontstarve.fandom.com" + l
+
+		character.FavoriteFood = map[string]string{tittle: link}
 	})
 
 	err := c.Visit(fmt.Sprintf("https://dontstarve.fandom.com/wiki/%s", characterName))

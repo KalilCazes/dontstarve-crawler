@@ -12,7 +12,7 @@ import (
 
 func createCollector() *colly.Collector {
 
-	fake := httptest.NewServer(http.FileServer(http.Dir(".")))
+	fake := httptest.NewServer(http.FileServer(http.Dir("maxwell_test")))
 
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
@@ -24,7 +24,7 @@ func createCollector() *colly.Collector {
 	return c
 }
 
-func TestGetInfo(t *testing.T) {
+func TestGetCharacterInfo(t *testing.T) {
 	c := createCollector()
 
 	tests := []Character{
@@ -35,10 +35,10 @@ func TestGetInfo(t *testing.T) {
 			Bio:          "Formerly the Shadow King, lately Maxwell finds himself reacquainted with life among the commonfolk.",
 			Perks:        []string{"Is dapper, but frail", "Can split his mind into pieces", "Was once the king of the world"},
 			ProfileImage: "https://static.wikia.nocookie.net/dont-starve-game/images/9/95/Maxwell_DST.png",
-			Health:       75,
-			Hunger:       150,
-			Sanity:       200,
-			FavoriteFood: map[string]string{"Wobster_Dinner": "https://dontstarve.fandom.com/wiki/Wobster_Dinner"},
+			Health:       "75",
+			Hunger:       "150",
+			Sanity:       "200",
+			FavoriteFood: map[string]string{"Wobster Dinner (DST)": "https://dontstarve.fandom.com/wiki/Wobster_Dinner_(DST)"},
 		},
 	}
 
@@ -46,7 +46,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get nickname information", func(t *testing.T) {
 			expected := tt.Nickname
-			got := GetInfo(c, tt.Name).Nickname
+			got := GetCharacterInfo(c, tt.Name).Nickname
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[nickname]", expected, got)
@@ -55,7 +55,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get motto information", func(t *testing.T) {
 			expected := tt.Motto
-			got := GetInfo(c, tt.Name).Motto
+			got := GetCharacterInfo(c, tt.Name).Motto
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[motto]", expected, got)
@@ -64,7 +64,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get bio information", func(t *testing.T) {
 			expected := tt.Bio
-			got := GetInfo(c, tt.Name).Bio
+			got := GetCharacterInfo(c, tt.Name).Bio
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[bio]", expected, got)
@@ -73,7 +73,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get perk information", func(t *testing.T) {
 			expected := tt.Perks
-			got := GetInfo(c, tt.Name).Perks
+			got := GetCharacterInfo(c, tt.Name).Perks
 
 			if !reflect.DeepEqual(got, expected) {
 				t.Errorf("%s: expected: %v, got: %v", "[perks]", expected, got)
@@ -82,7 +82,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get profile image information", func(t *testing.T) {
 			expected := tt.ProfileImage
-			got := GetInfo(c, tt.Name).ProfileImage
+			got := GetCharacterInfo(c, tt.Name).ProfileImage
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[profile image]", expected, got)
@@ -91,7 +91,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get health information", func(t *testing.T) {
 			expected := tt.Health
-			got := GetInfo(c, tt.Name).Health
+			got := GetCharacterInfo(c, tt.Name).Health
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[health]", expected, got)
@@ -100,7 +100,7 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get hunger information", func(t *testing.T) {
 			expected := tt.Hunger
-			got := GetInfo(c, tt.Name).Hunger
+			got := GetCharacterInfo(c, tt.Name).Hunger
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[hunger]", expected, got)
@@ -109,10 +109,19 @@ func TestGetInfo(t *testing.T) {
 
 		t.Run("get sanity information", func(t *testing.T) {
 			expected := tt.Sanity
-			got := GetInfo(c, tt.Name).Sanity
+			got := GetCharacterInfo(c, tt.Name).Sanity
 
 			if got != expected {
 				t.Errorf("%s: expected: %v, got: %v", "[sanity]", expected, got)
+			}
+		})
+
+		t.Run("get favorite food information", func(t *testing.T) {
+			expected := tt.FavoriteFood
+			got := GetCharacterInfo(c, tt.Name).FavoriteFood
+
+			if !reflect.DeepEqual(got, expected) {
+				t.Errorf("%s: expected: %v, got: %v", "[favorite food]", expected, got)
 			}
 		})
 	}
