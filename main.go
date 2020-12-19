@@ -34,6 +34,6 @@ func main() {
 	collector := NewCollector()
 	chars := character.GetCharacters(collector)
 	for _, name := range chars {
-		fmt.Printf("%s: %s\n", name, character.GetInfo(collector, name).Nickname)
+		fmt.Printf("%s: %s\n", name, character.GetCharacterInfo(collector, name).Nickname)
 	}
 }
