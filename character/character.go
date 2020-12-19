@@ -3,6 +3,8 @@ package character
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -13,7 +15,7 @@ type Character struct {
 	Nickname     string
 	Motto        string
 	Bio          string
-	Perk         []string
+	Perks        []string
 	ProfileImage string
 	Health       int
 	Hunger       int
@@ -49,15 +51,86 @@ func GetCharacters(c *colly.Collector) []string {
 func GetInfo(c *colly.Collector, characterName string) Character {
 
 	character := Character{}
-	c.OnHTML("div.pi-section-content", func(e *colly.HTMLElement) {
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
 		goquerySelection := e.DOM
 		nickname := goquerySelection.Find("[data-source=\"nick dst\"] .pi-data-value").Text()
 		character.Nickname = nickname
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		motto := goquerySelection.Find("[data-source=\"motto dst\"] .pi-data-value").Text()
+		character.Motto = motto
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		bio := goquerySelection.Find("[data-source=\"bio\"] .pi-data-value").Text()
+		character.Bio = bio
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		s, err := goquerySelection.Find("[data-source=\"perk dst\"] .pi-data-value").Html()
+		if err != nil {
+			log.Fatal(err)
+		}
+		perks := strings.Split(s, "<br/>")
+		character.Perks = perks
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		var err error
+		pi := e.ChildAttr("section:nth-child(1) > figure:nth-child(1) > a:nth-child(1) > img", "src")
+		pi, err = trimImageURL(pi)
+		if err != nil {
+			log.Fatal(err)
+		}
+		character.ProfileImage = pi
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		ht := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(1)").Text()
+		health, err := strconv.Atoi(ht)
+		if err != nil {
+			log.Fatal(err)
+		}
+		character.Health = health
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		hg := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(2)").Text()
+		hunger, err := strconv.Atoi(hg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		character.Hunger = hunger
+	})
+
+	c.OnHTML("div.pi-section-content:nth-child(2)", func(e *colly.HTMLElement) {
+		goquerySelection := e.DOM
+		s := goquerySelection.Find("div.pi-section-content:nth-child(2) > section:nth-child(2) > table:nth-child(1) > tbody:nth-child(3) > tr:nth-child(1) > td:nth-child(3)").Text()
+		sanity, err := strconv.Atoi(s)
+		if err != nil {
+			log.Fatal(err)
+		}
+		character.Sanity = sanity
 	})
 
 	err := c.Visit(fmt.Sprintf("https://dontstarve.fandom.com/wiki/%s", characterName))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return character
+}
+
+func trimImageURL(url string) (string, error) {
+	s := strings.SplitAfter(url, "png")
+	if len(s) < 1 {
+		return "", fmt.Errorf("Invalid Image URL: %s", url)
+	}
+	return s[0], nil
 }
