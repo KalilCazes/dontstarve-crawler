@@ -1,6 +1,7 @@
 package character
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -16,7 +17,10 @@ func createCollector() *colly.Collector {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 	)
-	c.Visit(fake.URL)
+	err := c.Visit(fake.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return c
 }
 
