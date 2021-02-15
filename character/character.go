@@ -51,8 +51,7 @@ func GetCharacterInfo(c *colly.Collector, characterName string) Character {
 
 	c.OnHTML("div.pi-section-contents [data-ref]", func(e *colly.HTMLElement) {
 
-		var tabSize string
-		tabSize = e.Attr("data-ref")
+		var tabSize string = e.Attr("data-ref")
 
 		if tabSize == "1" {
 			filter = ":nth-child(2)"
@@ -150,7 +149,7 @@ func GetCharacterInfo(c *colly.Collector, characterName string) Character {
 func trimImageURL(url string) (string, error) {
 	s := strings.SplitAfter(url, "png")
 	if len(s) < 1 {
-		return "", fmt.Errorf("Invalid Image URL: %s", url)
+		return "", fmt.Errorf("invalid Image URL: %s", url)
 	}
 	return s[0], nil
 }
@@ -171,7 +170,7 @@ func trimPerk(raw string) []string {
 			continue
 		}
 
-		if copy == true {
+		if copy {
 			aux += string(c)
 		}
 
